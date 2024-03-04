@@ -1,0 +1,43 @@
+import time
+import psutil
+
+def keyword_search(keyword, file_path):
+    start_time = time.time()  # Record start time
+    try:
+        with open(file_path, 'r') as file:
+            line_number = 1
+            for line in file:
+                if keyword.lower() in line.lower():  # Case-insensitive search
+                    end_time = time.time()  # Record end time
+                    execution_time = end_time - start_time
+                    memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # in megabytes
+
+                    return {
+                        "result": f"Found '{keyword}' in line {line_number}: {line.strip()}",
+                        "latency": execution_time,
+                        "memory_usage": memory_usage,
+                        "unit": "MB",
+                    }
+
+                line_number += 1
+        end_time = time.time()  # Record end time if keyword is not found
+        execution_time = end_time - start_time
+        memory_usage = psutil.Process().memory_info().rss / (1024 ** 2)  # in megabytes
+
+        return {
+            "result": f"Keyword '{keyword}' not found in the file.",
+            "latency": execution_time,
+            "memory_usage": memory_usage,
+            "unit": "MB",
+        }
+
+    except FileNotFoundError:
+        return {"result": f"File not found at path: {file_path}"}
+    except Exception as e:
+        return {"result": f"An error occurred: {str(e)}"}
+
+# Example usage:
+keyword_to_search = "retrieve relevant information"
+file_path = "document.txt"
+result = keyword_search(keyword_to_search, file_path)
+print(result)
